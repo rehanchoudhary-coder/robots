@@ -1,7 +1,6 @@
 'use client';
 
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 
 const HeroCanvasAnimation = dynamic(
@@ -17,40 +16,51 @@ const BudgetAdvisor = dynamic(
   { ssr: false }
 );
 
+const seededValue = (index: number, salt: number) => {
+  const value = Math.sin(index * 12.9898 + salt * 78.233) * 43758.5453;
+  return value - Math.floor(value);
+};
+
+const floatingParticles = Array.from({ length: 30 }, (_, i) => ({
+  id: i,
+  size: seededValue(i, 1) * 4 + 1,
+  left: seededValue(i, 2) * 100,
+  top: seededValue(i, 3) * 100,
+  background: i % 3 === 0 ? '#4F9C8F' : i % 3 === 1 ? '#D4A574' : '#ffffff',
+  opacity: seededValue(i, 4) * 0.3 + 0.05,
+  driftY: -(seededValue(i, 5) * 100 + 50),
+  driftX: seededValue(i, 6) * 60 - 30,
+  activeOpacity: seededValue(i, 7) * 0.3 + 0.1,
+  duration: seededValue(i, 8) * 8 + 8,
+  delay: seededValue(i, 9) * 5,
+}));
+
 /* ── Floating Particles Background ──────────────────────────────────────────── */
 function FloatingParticles() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {Array.from({ length: 30 }, (_, i) => (
+      {floatingParticles.map((particle) => (
         <motion.div
-          key={i}
+          key={particle.id}
           className="absolute rounded-full"
           style={{
-            width: Math.random() * 4 + 1,
-            height: Math.random() * 4 + 1,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            background: i % 3 === 0 ? '#4F9C8F' : i % 3 === 1 ? '#D4A574' : '#ffffff',
-            opacity: Math.random() * 0.3 + 0.05,
+            width: particle.size,
+            height: particle.size,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            background: particle.background,
+            opacity: particle.opacity,
           }}
           animate={{
-            y: [0, -(Math.random() * 100 + 50), 0],
-            x: [0, Math.random() * 60 - 30, 0],
-            opacity: [0.05, Math.random() * 0.3 + 0.1, 0.05],
+            y: [0, particle.driftY, 0],
+            x: [0, particle.driftX, 0],
+            opacity: [0.05, particle.activeOpacity, 0.05],
           }}
           transition={{
-            duration: Math.random() * 8 + 8,
+            duration: particle.duration,
             repeat: Infinity,
             ease: 'easeInOut',
-            delay: Math.random() * 5,
+            delay: particle.delay,
           }}
         />
       ))}

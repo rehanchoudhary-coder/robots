@@ -1,8 +1,8 @@
 'use client';
 
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useRef } from 'react';
-import { environments, type EnvironmentData } from '@/data/robotics';
+import { environments } from '@/data/robotics';
 
 interface MetricBarProps {
   label: string;
