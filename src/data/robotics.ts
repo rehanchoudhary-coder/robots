@@ -9,7 +9,6 @@ export interface RobotComponent {
   specs: Record<string, string>;
   rating: number; // 1-5
   description: string;
-  valueScore: number; // computed: rating / (price / 100)
 }
 
 export const robotComponents: RobotComponent[] = [
@@ -29,7 +28,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4,
     description: 'Dual-core Xtensa processor with native WiFi and Bluetooth. Perfect for IoT robots.',
-    valueScore: 26.7,
   },
   {
     id: 'arduino-mega',
@@ -46,7 +44,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 3.5,
     description: 'The workhorse of robotics prototyping. Unmatched pin count for complex builds.',
-    valueScore: 14,
   },
   {
     id: 'raspberry-pi-4',
@@ -63,7 +60,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 5,
     description: 'A full computer for autonomous AI. Runs ROS, TensorFlow, and computer vision pipelines.',
-    valueScore: 9.1,
   },
   {
     id: 'teensy-41',
@@ -80,7 +76,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4.5,
     description: 'Fastest ARM-based microcontroller. Ideal for real-time sensor fusion.',
-    valueScore: 14.1,
   },
 
   // ── Motors ─────────────────────────────────────────────────────────────────
@@ -99,7 +94,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4.5,
     description: 'Efficient, durable, and powerful. The standard for professional-grade robots.',
-    valueScore: 10,
   },
   {
     id: 'nema17-stepper',
@@ -116,7 +110,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4,
     description: 'Precise angular control for CNC, 3D printers and robotic arms.',
-    valueScore: 22.2,
   },
   {
     id: 'servo-mg996r',
@@ -133,7 +126,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 3.5,
     description: 'Metal-gear servo with high torque. Great for grippers and pan-tilt mechanisms.',
-    valueScore: 43.75,
   },
   {
     id: 'dc-gearmotor',
@@ -150,7 +142,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 3,
     description: 'Affordable and reliable. Perfect for wheeled robot platforms.',
-    valueScore: 25,
   },
 
   // ── Sensors ────────────────────────────────────────────────────────────────
@@ -169,7 +160,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 5,
     description: 'Full 360° laser scanning for SLAM navigation and obstacle mapping.',
-    valueScore: 4.2,
   },
   {
     id: 'imu-mpu6050',
@@ -186,7 +176,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4,
     description: '6-axis motion tracking. Essential for balancing robots and drone stabilization.',
-    valueScore: 80,
   },
   {
     id: 'ultrasonic-hcsr04',
@@ -203,7 +192,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 3,
     description: 'Simple, cheap, effective distance measurement for obstacle avoidance.',
-    valueScore: 100,
   },
   {
     id: 'camera-ov7670',
@@ -220,7 +208,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 3.5,
     description: 'Low-cost VGA camera module for basic computer vision applications.',
-    valueScore: 35,
   },
   {
     id: 'depth-camera-d435',
@@ -237,7 +224,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 5,
     description: 'Professional stereo depth camera for 3D environment mapping and navigation.',
-    valueScore: 1.8,
   },
 
   // ── Controllers ────────────────────────────────────────────────────────────
@@ -256,7 +242,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 3.5,
     description: 'Classic dual H-bridge driver for DC motors and stepper motors.',
-    valueScore: 50,
   },
   {
     id: 'servo-driver-pca9685',
@@ -273,7 +258,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4.5,
     description: '16-channel PWM driver. Control up to 992 servos with daisy-chaining.',
-    valueScore: 45,
   },
 
   // ── Power ──────────────────────────────────────────────────────────────────
@@ -292,7 +276,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4,
     description: 'Lightweight, high-discharge battery for mobile robots and drones.',
-    valueScore: 18.2,
   },
   {
     id: 'buck-converter',
@@ -309,7 +292,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4,
     description: 'High-efficiency switchable voltage regulator for mixed-voltage systems.',
-    valueScore: 66.7,
   },
 
   // ── Chassis ────────────────────────────────────────────────────────────────
@@ -328,7 +310,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 4,
     description: 'Aluminum tracked platform with motors. Ideal for Mars and rough terrain simulation.',
-    valueScore: 11.4,
   },
   {
     id: 'mecanum-platform',
@@ -345,7 +326,6 @@ export const robotComponents: RobotComponent[] = [
     },
     rating: 5,
     description: 'Premium omnidirectional platform. Move in any direction without turning.',
-    valueScore: 5.9,
   },
 ];
 
@@ -447,9 +427,12 @@ export function getBestValueComponents(budget: number): {
   let totalCost = 0;
 
   for (const category of categories) {
+    // A component's value is its rating-to-price ratio. Higher is better.
+    const getValueScore = (c: RobotComponent) => (c.price > 0 ? c.rating / c.price : Infinity);
+
     const available = robotComponents
       .filter((c) => c.category === category && c.price <= budget - totalCost)
-      .sort((a, b) => b.valueScore - a.valueScore);
+      .sort((a, b) => getValueScore(b) - getValueScore(a));
 
     if (available.length > 0) {
       selected.push(available[0]);
